@@ -4,8 +4,9 @@
 const juce::Colour DubLookAndFeel::panelBg   { 0xfff7eedb };
 const juce::Colour DubLookAndFeel::panelCard { 0xffefe0bd };
 const juce::Colour DubLookAndFeel::panelEdge { 0xffb69a63 };
-const juce::Colour DubLookAndFeel::accent    { 0xffd9622e };
-const juce::Colour DubLookAndFeel::accent2   { 0xff2c8c86 };
+const juce::Colour DubLookAndFeel::accent    { 0xffc8102e };
+const juce::Colour DubLookAndFeel::accent2   { 0xffe0b043 };
+const juce::Colour DubLookAndFeel::accent3   { 0xff1e7145 };
 const juce::Colour DubLookAndFeel::text      { 0xff2c2013 };
 
 DubLookAndFeel::DubLookAndFeel()
@@ -29,52 +30,39 @@ void DubLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int widt
                                         juce::Slider& slider)
 {
     auto bounds = juce::Rectangle<float> ((float) x, (float) y, (float) width, (float) height).reduced (4.0f);
-    auto radius = juce::jmin (bounds.getWidth(), bounds.getHeight()) * 0.5f;
+    auto radius = juce::jmin (bounds.getWidth(), bounds.getHeight()) * 0.5f * 0.82f;
     auto centre = bounds.getCentre();
     auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
 
-    // analog-gauge tick marks around the dial
-    for (int i = 0; i <= 10; ++i)
-    {
-        auto t = rotaryStartAngle + (rotaryEndAngle - rotaryStartAngle) * (i / 10.0f);
-        auto inner = radius * 0.92f;
-        auto outer = radius * 1.02f;
-        juce::Point<float> p1 (centre.x + inner * std::sin (t), centre.y - inner * std::cos (t));
-        juce::Point<float> p2 (centre.x + outer * std::sin (t), centre.y - outer * std::cos (t));
-        g.setColour (panelEdge.withAlpha (0.8f));
-        g.drawLine ({ p1, p2 }, 1.2f);
-    }
+    // Plain matte convex knob: no recess, no gear flutes, no glossy
+    // highlight - just a rounded dome lifted off the panel with a soft
+    // drop shadow and a single directional light-to-dark gradient
+    // (light upper-left, darker lower-right), plus a thin pointer.
+    juce::Path knobPath;
+    knobPath.addEllipse (centre.x - radius, centre.y - radius, radius * 2.0f, radius * 2.0f);
 
-    // outer track
-    juce::Path track;
-    track.addCentredArc (centre.x, centre.y, radius * 0.86f, radius * 0.86f, 0.0f, rotaryStartAngle, rotaryEndAngle, true);
-    g.setColour (panelEdge.withAlpha (0.55f));
-    g.strokePath (track, juce::PathStrokeType (2.5f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+    juce::DropShadow shadow (juce::Colours::black.withAlpha (0.4f),
+                              (int) juce::jmax (2.0f, radius * 0.3f),
+                              { 0, (int) juce::jmax (1.0f, radius * 0.16f) });
+    shadow.drawForPath (g, knobPath);
 
-    // value arc (teal)
-    juce::Path valueArc;
-    valueArc.addCentredArc (centre.x, centre.y, radius * 0.86f, radius * 0.86f, 0.0f, rotaryStartAngle, angle, true);
-    g.setColour (accent2);
-    g.strokePath (valueArc, juce::PathStrokeType (3.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+    auto highlightPos = centre.translated (radius * -0.22f, radius * -0.30f);
+    juce::ColourGradient dome (juce::Colour (0xfff2e4c1), highlightPos.x, highlightPos.y,
+                                juce::Colour (0xffa3893f), centre.x + radius, centre.y, true);
+    dome.addColour (0.55, juce::Colour (0xffd9c290));
+    g.setGradientFill (dome);
+    g.fillPath (knobPath);
 
-    // knob body
-    auto knobRadius = radius * 0.66f;
-    g.setColour (panelCard.brighter (0.08f));
-    g.fillEllipse (centre.x - knobRadius, centre.y - knobRadius, knobRadius * 2.0f, knobRadius * 2.0f);
-    g.setColour (panelEdge);
-    g.drawEllipse (centre.x - knobRadius, centre.y - knobRadius, knobRadius * 2.0f, knobRadius * 2.0f, 1.5f);
+    g.setColour (juce::Colour (0xff5c4a1f).withAlpha (0.55f));
+    g.strokePath (knobPath, juce::PathStrokeType (1.3f));
 
-    // pointer (orange)
+    // pointer
     juce::Path pointer;
-    auto pointerLength = knobRadius * 0.82f;
-    pointer.addRectangle (-1.6f, -pointerLength, 3.2f, pointerLength * 0.88f);
+    auto pointerLength = radius * 0.78f;
+    pointer.addRectangle (-1.7f, -pointerLength, 3.4f, pointerLength * 0.9f);
     pointer.applyTransform (juce::AffineTransform::rotation (angle).translated (centre.x, centre.y));
     g.setColour (accent);
     g.fillPath (pointer);
-
-    // centre cap
-    g.setColour (accent);
-    g.fillEllipse (centre.x - 3.0f, centre.y - 3.0f, 6.0f, 6.0f);
 
     juce::ignoreUnused (slider);
 }

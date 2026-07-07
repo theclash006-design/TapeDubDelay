@@ -39,10 +39,16 @@ namespace DubUI
 
             if (index > 0)
             {
+                // cycle the badge through the rasta red/gold/green trio
+                static const juce::Colour badgeColours[3] = { DubLookAndFeel::accent3,
+                                                                DubLookAndFeel::accent,
+                                                                DubLookAndFeel::accent2 };
+                auto badgeColour = badgeColours[(index - 1) % 3];
+
                 auto badge = header.removeFromLeft (24.0f).withSizeKeepingCentre (22.0f, 22.0f);
-                g.setColour (DubLookAndFeel::accent2);
+                g.setColour (badgeColour);
                 g.fillEllipse (badge);
-                g.setColour (juce::Colours::white);
+                g.setColour (badgeColour == DubLookAndFeel::accent2 ? DubLookAndFeel::text : juce::Colours::white);
                 g.setFont (juce::Font (12.0f, juce::Font::bold));
                 g.drawText (juce::String (index), badge.toNearestInt(), juce::Justification::centred);
                 header.removeFromLeft (10.0f);
@@ -52,10 +58,14 @@ namespace DubUI
             g.setFont (juce::Font (16.0f, juce::Font::bold));
             g.drawText (title, header, juce::Justification::centredLeft);
 
+            // rasta red/gold/green triple divider
+            auto stripeW = ((float) getWidth() - 28.0f) / 3.0f;
             g.setColour (DubLookAndFeel::accent);
-            g.fillRect (juce::Rectangle<float> (14.0f, 40.0f, (float) getWidth() - 28.0f, 2.0f));
+            g.fillRect (juce::Rectangle<float> (14.0f, 40.0f, stripeW, 2.0f));
             g.setColour (DubLookAndFeel::accent2);
-            g.fillRect (juce::Rectangle<float> (14.0f, 43.0f, (float) getWidth() - 28.0f, 1.0f));
+            g.fillRect (juce::Rectangle<float> (14.0f + stripeW, 40.0f, stripeW, 2.0f));
+            g.setColour (DubLookAndFeel::accent3);
+            g.fillRect (juce::Rectangle<float> (14.0f + stripeW * 2.0f, 40.0f, stripeW, 2.0f));
         }
 
         void resized() override

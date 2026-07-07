@@ -95,7 +95,7 @@ TapeDubDelayAudioProcessorEditor::TapeDubDelayAudioProcessorEditor (TapeDubDelay
     addAndMakeVisible (taglineLabel);
     taglineLabel.setText ("DUB TAPE ECHO SYSTEM", juce::dontSendNotification);
     taglineLabel.setJustificationType (juce::Justification::centredLeft);
-    taglineLabel.setColour (juce::Label::textColourId, DubLookAndFeel::accent2);
+    taglineLabel.setColour (juce::Label::textColourId, DubLookAndFeel::accent3);
     taglineLabel.setFont (juce::Font (12.5f, juce::Font::bold));
 
     panelStack.addSection (buildTapeDelayPanel (processorRef.apvts));
@@ -122,12 +122,16 @@ void TapeDubDelayAudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.fillAll (DubLookAndFeel::panelBg);
 
-    // double-rule under the header, echoing each section panel's orange/teal divider
+    // rasta red/gold/green triple-rule under the header, echoing each
+    // section panel's divider
     auto width = getWidth();
+    auto third = width / 3;
     g.setColour (DubLookAndFeel::accent);
-    g.fillRect (juce::Rectangle<int> (0, 62, width, 2));
+    g.fillRect (juce::Rectangle<int> (0, 62, third, 3));
     g.setColour (DubLookAndFeel::accent2);
-    g.fillRect (juce::Rectangle<int> (0, 64, width, 1));
+    g.fillRect (juce::Rectangle<int> (third, 62, third, 3));
+    g.setColour (DubLookAndFeel::accent3);
+    g.fillRect (juce::Rectangle<int> (third * 2, 62, width - third * 2, 3));
 }
 
 void TapeDubDelayAudioProcessorEditor::resized()
