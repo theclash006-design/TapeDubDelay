@@ -33,6 +33,7 @@ target_sources(TapeDubDelay PRIVATE
     Source/PluginProcessor.cpp
     Source/PluginEditor.cpp
     Source/DSP/TapeDelayEngine.cpp
+    Source/UI/DubLookAndFeel.cpp
 )
 
 target_include_directories(TapeDubDelay PRIVATE Source)
