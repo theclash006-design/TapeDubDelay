@@ -29,9 +29,11 @@ Dubスタイルのテープディレイ・エフェクター(VST3/AU/Standalone)
   ピッチがずれ続ける「ピッチエスカレーター」ダブエフェクトになる
 
 - **カスタムGUI**: `GenericAudioProcessorEditor`を廃止し、独自LookAndFeel
-  （ダーク+アンバーのハードウェア風テーマ、コード/画像とも本家からの流用なし）による
-  タブ構成のエディタに変更。DELAY/STEREO/FILTER/PITCH/REVERBの5タブに、
-  回転ノブ・ロッカースイッチ風トグル・ドロップダウンを自作コンポーネントとして配置
+  （クリーム×バーントオレンジ×ダスティティールの「Atomic Console」配色、60年代SF風、
+  コード/画像とも本家からの流用なし）による常時表示レイアウトに変更。タブ切替ではなく、
+  DELAY/STEREO/FILTER/PITCH/REVERBの5セクションを、本家PDFのハードウェア筐体に近い
+  縦積みパネルとして常時表示し、ウィンドウが小さいときは縦スクロールする構成。回転ノブ
+  （目盛り付き）・ロッカースイッチ風トグル・ドロップダウンを自作コンポーネントとして配置
 
 未実装（次のステップ、下記ロードマップ参照）:
 
@@ -63,14 +65,19 @@ VST3フォルダにコピーしてDAWで読み込んでください（`COPY_PLUG
 
 `Source/UI/`以下に自作のカスタムGUIがあります:
 
-- `DubLookAndFeel.h/.cpp`: 配色・ノブ/トグル/タブの描画を定義するLookAndFeel
+- `DubLookAndFeel.h/.cpp`: 「Atomic Console」配色（クリーム地`#F7EEDB`/`#EFE0BD`、
+  オレンジ`#D9622E`、ティール`#2C8C86`、インク`#2C2013`）とノブ/トグルの描画を
+  定義するLookAndFeel。ノブには目盛り・2色（ティール値アーク＋オレンジ指針）を追加
 - `Controls.h`: ラベル+ウィジェット+APVTS attachmentをまとめたKnob/Toggle/Choice
-- `SectionPanel.h`: タブ1枚分のコントロールをFlexBoxで折り返し配置するパネル
-- `PluginEditor.cpp`: 上記を組み合わせてDELAY/STEREO/FILTER/PITCH/REVERBの
-  5タブを構築
+- `SectionPanel.h`: 1セクション分のコントロールをFlexBoxで折り返し配置するカード。
+  番号バッジ付きタイトル、現在の幅から必要な高さを逆算する`getPreferredHeight()`を持つ
+- `PluginEditor.cpp` / `PluginEditor.h`: 上記を組み合わせて、タブ切替ではなく
+  DELAY/STEREO/FILTER/PITCH/REVERBの5セクションを`Viewport`内に縦積みし、
+  常時表示するレイアウトを構築（`PanelStack`が各パネルの高さを動的計算）
 
 配色・レイアウトともゼロから作った独自デザインです（本家のノブ画像やパネル配置は
-一切使っていません）。ウィンドウはリサイズ可能（620×420〜1100×800）。
+一切使っていません）。ウィンドウはリサイズ可能（620×460〜1200×900）。画面が
+狭いときはセクション全体が縦スクロールします。
 
 本家にあるようなシグナルフローダイアグラム（VUメーター切替パネル）はまだ未実装です
 （Roadmap参照）。
