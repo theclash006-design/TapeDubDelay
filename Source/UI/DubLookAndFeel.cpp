@@ -23,6 +23,11 @@ DubLookAndFeel::DubLookAndFeel()
     setColour (juce::PopupMenu::textColourId, text);
     setColour (juce::PopupMenu::highlightedBackgroundColourId, accent.withAlpha (0.35f));
     setColour (juce::TextButton::buttonColourId, panelCard);
+
+    // default pointer/tick colour when a component doesn't set its own
+    // (Controls.h overrides these per-instance to cycle red/gold/green)
+    setColour (juce::Slider::rotarySliderFillColourId, accent);
+    setColour (juce::ToggleButton::tickColourId, accent);
 }
 
 void DubLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int width, int height,
@@ -56,15 +61,14 @@ void DubLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int widt
     g.setColour (juce::Colour (0xff5c4a1f).withAlpha (0.55f));
     g.strokePath (knobPath, juce::PathStrokeType (1.3f));
 
-    // pointer
+    // pointer (colour is per-component - see Controls.h - so it can cycle
+    // through the rasta red/gold/green trio instead of always being red)
     juce::Path pointer;
     auto pointerLength = radius * 0.78f;
     pointer.addRectangle (-1.7f, -pointerLength, 3.4f, pointerLength * 0.9f);
     pointer.applyTransform (juce::AffineTransform::rotation (angle).translated (centre.x, centre.y));
-    g.setColour (accent);
+    g.setColour (slider.findColour (juce::Slider::rotarySliderFillColourId));
     g.fillPath (pointer);
-
-    juce::ignoreUnused (slider);
 }
 
 void DubLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& button,
@@ -76,7 +80,7 @@ void DubLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& bu
                             .withCentre ({ bounds.getX() + switchW * 0.5f, bounds.getCentreY() });
 
     bool on = button.getToggleState();
-    g.setColour (on ? accent : panelCard.darker (0.06f));
+    g.setColour (on ? button.findColour (juce::ToggleButton::tickColourId) : panelCard.darker (0.06f));
     g.fillRoundedRectangle (switchBounds, switchBounds.getHeight() * 0.5f);
     g.setColour (panelEdge);
     g.drawRoundedRectangle (switchBounds, switchBounds.getHeight() * 0.5f, 1.2f);

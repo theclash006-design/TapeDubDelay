@@ -5,35 +5,54 @@ using namespace DubUI;
 
 namespace
 {
+    // Cycles a knob/toggle's accent colour through the rasta red/gold/green
+    // trio in order, so the three colours end up roughly equally
+    // represented across a section's controls instead of everything
+    // defaulting to the same accent.
+    class AccentCycle
+    {
+    public:
+        juce::Colour next()
+        {
+            static const juce::Colour colours[3] = { DubLookAndFeel::accent, DubLookAndFeel::accent2, DubLookAndFeel::accent3 };
+            return colours[(index++) % 3];
+        }
+
+    private:
+        int index = 0;
+    };
+
     SectionPanel* buildTapeDelayPanel (juce::AudioProcessorValueTreeState& apvts)
     {
         auto* panel = new SectionPanel ("TAPE DELAY", 1);
-        panel->addControl (new Toggle (apvts, "delayOn", "ON/OFF"), 96, 40);
+        AccentCycle ac;
+        panel->addControl (new Toggle (apvts, "delayOn", "ON/OFF", ac.next()), 96, 40);
         panel->addControl (new Choice (apvts, "noteDiv", "NOTE"), 96, 60);
-        panel->addControl (new Knob (apvts, "groove", "GROOVE"));
-        panel->addControl (new Knob (apvts, "trim", "TRIM"));
-        panel->addControl (new Toggle (apvts, "x2", "X2"), 90, 40);
-        panel->addControl (new Knob (apvts, "feedback", "FEEDBACK"));
-        panel->addControl (new Knob (apvts, "directMix", "DIRECT MIX"));
-        panel->addControl (new Knob (apvts, "highCut", "HIGH CUT"));
-        panel->addControl (new Knob (apvts, "lowCut", "LOW CUT"));
-        panel->addControl (new Toggle (apvts, "freeze", "FREEZE"), 90, 40);
-        panel->addControl (new Knob (apvts, "smooth", "SMOOTH"));
-        panel->addControl (new Knob (apvts, "flutterInt", "FLUTTER INT"));
-        panel->addControl (new Knob (apvts, "flutterRate", "FLUTTER RATE"));
-        panel->addControl (new Knob (apvts, "wowInt", "WOW INT"));
-        panel->addControl (new Knob (apvts, "wowRate", "WOW RATE"));
+        panel->addControl (new Knob (apvts, "groove", "GROOVE", ac.next()));
+        panel->addControl (new Knob (apvts, "trim", "TRIM", ac.next()));
+        panel->addControl (new Toggle (apvts, "x2", "X2", ac.next()), 90, 40);
+        panel->addControl (new Knob (apvts, "feedback", "FEEDBACK", ac.next()));
+        panel->addControl (new Knob (apvts, "directMix", "DIRECT MIX", ac.next()));
+        panel->addControl (new Knob (apvts, "highCut", "HIGH CUT", ac.next()));
+        panel->addControl (new Knob (apvts, "lowCut", "LOW CUT", ac.next()));
+        panel->addControl (new Toggle (apvts, "freeze", "FREEZE", ac.next()), 90, 40);
+        panel->addControl (new Knob (apvts, "smooth", "SMOOTH", ac.next()));
+        panel->addControl (new Knob (apvts, "flutterInt", "FLUTTER INT", ac.next()));
+        panel->addControl (new Knob (apvts, "flutterRate", "FLUTTER RATE", ac.next()));
+        panel->addControl (new Knob (apvts, "wowInt", "WOW INT", ac.next()));
+        panel->addControl (new Knob (apvts, "wowRate", "WOW RATE", ac.next()));
         return panel;
     }
 
     SectionPanel* buildStereoPanel (juce::AudioProcessorValueTreeState& apvts)
     {
         auto* panel = new SectionPanel ("STEREO", 2);
-        panel->addControl (new Knob (apvts, "balance", "BALANCE"));
-        panel->addControl (new Knob (apvts, "width", "WIDTH"));
-        panel->addControl (new Toggle (apvts, "pingpong", "PINGPONG"), 110, 40);
-        panel->addControl (new Knob (apvts, "drift", "DRIFT"));
-        panel->addControl (new Knob (apvts, "autoPanInt", "AUTO PAN INT"));
+        AccentCycle ac;
+        panel->addControl (new Knob (apvts, "balance", "BALANCE", ac.next()));
+        panel->addControl (new Knob (apvts, "width", "WIDTH", ac.next()));
+        panel->addControl (new Toggle (apvts, "pingpong", "PINGPONG", ac.next()), 110, 40);
+        panel->addControl (new Knob (apvts, "drift", "DRIFT", ac.next()));
+        panel->addControl (new Knob (apvts, "autoPanInt", "AUTO PAN INT", ac.next()));
         panel->addControl (new Choice (apvts, "autoPanRate", "AP RATE"), 96, 60);
         return panel;
     }
@@ -41,42 +60,45 @@ namespace
     SectionPanel* buildFilterPanel (juce::AudioProcessorValueTreeState& apvts)
     {
         auto* panel = new SectionPanel ("FILTER", 3);
-        panel->addControl (new Toggle (apvts, "filterOn", "ON/OFF"), 96, 40);
+        AccentCycle ac;
+        panel->addControl (new Toggle (apvts, "filterOn", "ON/OFF", ac.next()), 96, 40);
         panel->addControl (new Choice (apvts, "filterType", "TYPE"), 96, 60);
-        panel->addControl (new Knob (apvts, "cutoff", "CUTOFF"));
-        panel->addControl (new Knob (apvts, "resonance", "RESONANCE"));
-        panel->addControl (new Toggle (apvts, "filterLfoOn", "LFO ON"), 96, 40);
-        panel->addControl (new Knob (apvts, "filterLfoInt", "LFO INT"));
+        panel->addControl (new Knob (apvts, "cutoff", "CUTOFF", ac.next()));
+        panel->addControl (new Knob (apvts, "resonance", "RESONANCE", ac.next()));
+        panel->addControl (new Toggle (apvts, "filterLfoOn", "LFO ON", ac.next()), 96, 40);
+        panel->addControl (new Knob (apvts, "filterLfoInt", "LFO INT", ac.next()));
         panel->addControl (new Choice (apvts, "filterLfoRate", "LFO RATE"), 96, 60);
-        panel->addControl (new Toggle (apvts, "filterPre", "PRE"), 90, 40);
+        panel->addControl (new Toggle (apvts, "filterPre", "PRE", ac.next()), 90, 40);
         return panel;
     }
 
     SectionPanel* buildPitchPanel (juce::AudioProcessorValueTreeState& apvts)
     {
         auto* panel = new SectionPanel ("PITCH SHIFT", 4);
-        panel->addControl (new Toggle (apvts, "pitchOn", "ON/OFF"), 96, 40);
+        AccentCycle ac;
+        panel->addControl (new Toggle (apvts, "pitchOn", "ON/OFF", ac.next()), 96, 40);
         panel->addControl (new Choice (apvts, "pitchAlgo", "ALGO"), 90, 60);
-        panel->addControl (new Knob (apvts, "pitchSemi", "SEMI"));
-        panel->addControl (new Knob (apvts, "pitchFine", "FINE"));
-        panel->addControl (new Knob (apvts, "pitchGrain", "GRAIN"));
-        panel->addControl (new Knob (apvts, "pitchMix", "MIX"));
-        panel->addControl (new Toggle (apvts, "pitchPre", "PRE"), 90, 40);
+        panel->addControl (new Knob (apvts, "pitchSemi", "SEMI", ac.next()));
+        panel->addControl (new Knob (apvts, "pitchFine", "FINE", ac.next()));
+        panel->addControl (new Knob (apvts, "pitchGrain", "GRAIN", ac.next()));
+        panel->addControl (new Knob (apvts, "pitchMix", "MIX", ac.next()));
+        panel->addControl (new Toggle (apvts, "pitchPre", "PRE", ac.next()), 90, 40);
         return panel;
     }
 
     SectionPanel* buildReverbPanel (juce::AudioProcessorValueTreeState& apvts)
     {
         auto* panel = new SectionPanel ("REVERB", 5);
-        panel->addControl (new Toggle (apvts, "reverbOn", "ON/OFF"), 96, 40);
-        panel->addControl (new Knob (apvts, "reverbSizeA", "SIZE A"));
-        panel->addControl (new Knob (apvts, "reverbDampA", "DAMP A"));
-        panel->addControl (new Knob (apvts, "reverbSizeB", "SIZE B"));
-        panel->addControl (new Knob (apvts, "reverbDampB", "DAMP B"));
-        panel->addControl (new Knob (apvts, "reverbMixAB", "MIX A/B"));
-        panel->addControl (new Knob (apvts, "reverbWidth", "WIDTH"));
-        panel->addControl (new Knob (apvts, "reverbMix", "MIX"));
-        panel->addControl (new Toggle (apvts, "reverbPre", "PRE"), 90, 40);
+        AccentCycle ac;
+        panel->addControl (new Toggle (apvts, "reverbOn", "ON/OFF", ac.next()), 96, 40);
+        panel->addControl (new Knob (apvts, "reverbSizeA", "SIZE A", ac.next()));
+        panel->addControl (new Knob (apvts, "reverbDampA", "DAMP A", ac.next()));
+        panel->addControl (new Knob (apvts, "reverbSizeB", "SIZE B", ac.next()));
+        panel->addControl (new Knob (apvts, "reverbDampB", "DAMP B", ac.next()));
+        panel->addControl (new Knob (apvts, "reverbMixAB", "MIX A/B", ac.next()));
+        panel->addControl (new Knob (apvts, "reverbWidth", "WIDTH", ac.next()));
+        panel->addControl (new Knob (apvts, "reverbMix", "MIX", ac.next()));
+        panel->addControl (new Toggle (apvts, "reverbPre", "PRE", ac.next()), 90, 40);
         return panel;
     }
 }
